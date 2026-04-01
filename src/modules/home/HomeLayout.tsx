@@ -1,7 +1,6 @@
 import { AnimationGeneratorType, motion, useAnimation } from 'framer-motion';
 import { NavBarActions, StyledButton } from '../builder/nav-bar/atoms';
 
-import { BsGithub } from 'react-icons/bs';
 import { Button } from '@mui/material';
 import FeatureSection from './components/Feature';
 import Image from 'next/image';
@@ -36,18 +35,11 @@ const HomeLayout = () => {
           </NavBarActions>
           <NavBarActions>
             <Link href="#contribute" passHref={true} className="max-md:hidden">
-              <StyledButton variant="text">Contribute</StyledButton>
+              <StyledButton variant="text">Project Setup</StyledButton>
             </Link>
             <Link href="#about-us" passHref={true}>
-              <StyledButton variant="text">About us</StyledButton>
+              <StyledButton variant="text">Team</StyledButton>
             </Link>
-            <a
-              href={'https://github.com/sadanandpai/resume-builder'}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <BsGithub className="h-6 w-6" fill="white" />
-            </a>
           </NavBarActions>
         </div>
       </nav>
@@ -80,20 +72,20 @@ const HomeLayout = () => {
               />
             </div>
             <div className="col-span-12 sm:col-span-8">
-              <h3 className="text-xl md:text-2xl mb-2 text-resume-400">SIMPLEST WAY TO BUILD A</h3>
-              <h1 className="text-5xl mb-12 text-resume-800">Professional Resume</h1>
+              <h3 className="text-xl md:text-2xl mb-2 text-resume-400">CLOUD COMPUTING SUBJECT</h3>
+              <h1 className="text-5xl mb-12 text-resume-800">Team Resume Side Project</h1>
 
               <div className="flex mb-10">
                 <div className="bg-resume-800 w-1 rounded-lg"></div>
                 <p className="text-lg ml-3 text-resume-800">
-                  &ldquo;The secret to getting ahead is getting started&rdquo;
+                  &ldquo;Deploy fast, iterate faster, and ship with confidence.&rdquo;
                   <br />
-                  —Mark Twain
+                  —Cloud Project Team
                 </p>
               </div>
               <Link href="/builder" passHref={true}>
                 <Button variant="contained" className="bg-resume-800 mb-2">
-                  BUILD YOUR RESUME
+                  OPEN PROJECT BUILDER
                 </Button>
               </Link>
               <p
@@ -129,7 +121,7 @@ const HomeLayout = () => {
             <div className="col-span-12 lg:col-span-4 mb-4 lg:mb-0 flex flex-col items-center gap-2">
               <Image src={'/icons/palette.svg'} alt="logo" height="48" width="48" />
               <p className="text-resume-800 text-xl mt-2">
-                Do you want to make your own <strong>template?</strong>
+                Need your own <strong>cloud-ready template?</strong>
               </p>
             </div>
             <div className="col-span-12 lg:col-span-1 mb-4 lg:mb-0 text-resume-800 text-4xl">
@@ -138,7 +130,7 @@ const HomeLayout = () => {
             <div className="col-span-12 lg:col-span-2 flex flex-col items-center gap-2">
               <Image src={'/icons/terminal.svg'} alt="logo" height="48" width="48" />
               <p className="text-resume-800 text-xl mt-2">
-                Do you write <strong>React</strong> code?
+                Built with <strong>Next.js + React</strong>
               </p>
             </div>
             <div className="invisible lg:visible lg:col-span-2 text-resume-800 text-4xl mx-6">
@@ -149,13 +141,9 @@ const HomeLayout = () => {
                 <Image src={'/icons/wave.svg'} alt="logo" height="48" width="48" />
               </div>
               <div>
-                <a
-                  href="https://github.com/sadanandpai/resume-builder"
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <a href="/builder">
                   <Button variant="contained" className="bg-resume-800 mt-2 lg:mt-5 mb-3">
-                    CONTRIBUTE
+                    START BUILDING
                   </Button>
                 </a>
               </div>
@@ -169,25 +157,15 @@ const HomeLayout = () => {
         className="mx-6 md:mx-40 xl:mx-60 my-32"
         style={{ fontFamily: "'Roboto Slab', serif" }}
       >
-        <h2 className="text-resume-800 text-3xl mb-2 text-center lg:text-left">About us</h2>
+        <h2 className="text-resume-800 text-3xl mb-2 text-center lg:text-left">Team</h2>
         <p className="text-resume-400 mb-8 text-center lg:text-left">
-          A bunch of developers and designers — who love to build open source projects and learn
-          along!
+          Cloud Computing side project by student contributors.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           <Person />
         </div>
         <p className="text-resume-400 my-8 text-center lg:text-left">
-          Read our design story on&nbsp;
-          <a
-            href="https://medium.com/@yakshag/e-resume-build-a-professional-resume-design-case-study-3dc02a6359ea"
-            target="_blank"
-            rel="noreferrer"
-            className="underline"
-          >
-            Medium
-          </a>
-          ↗
+          Focus: AWS deployment readiness and MongoDB Atlas integration workflow.
         </p>
       </div>
     </motion.div>

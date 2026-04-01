@@ -5,8 +5,11 @@ function HomePage() {
   return (
     <div>
       <Head>
-        <title>E-Resume: Home</title>
-        <meta name="description" content="Single Page Resume Builder" />
+        <title>Cloud Computing Team Resume Builder</title>
+        <meta
+          name="description"
+          content="Cloud Computing side project resume builder by Piyush, Nandini, and Daksh."
+        />
         <link rel="icon" type="image/png" href="/icons/resume-icon.png" />
       </Head>
 

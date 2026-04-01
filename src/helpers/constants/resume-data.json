@@ -1,12 +1,12 @@
 {
   "basics": {
-    "name": "Jane Doe",
-    "label": "Frontend Engineer",
+    "name": "Piyush Utkar",
+    "label": "Cloud Computing Student",
     "image": "https://randomuser.me/api/portraits/men/18.jpg",
-    "email": "janedoe@email.com",
-    "phone": "+91 9876543210",
-    "url": "https://e-resume.vercel.app",
-    "summary": "I am a web developer having expertise in frontend development and exposure to back- end development. I design and develop web applications using the latest technologies to deliver the product with quality code.",
+    "email": "team.cloud.project@email.com",
+    "phone": "+91 9000000000",
+    "url": "https://cloud-resume-builder.example.com",
+    "summary": "This Cloud Computing side project focuses on building a production-ready resume platform using Next.js with a deployment path to AWS and database integration via MongoDB Atlas.",
     "location": {
       "address": "",
       "postalCode": "",
@@ -14,46 +14,10 @@
       "countryCode": "",
       "region": ""
     },
-    "relExp": "4 years",
-    "totalExp": "6 Years",
-    "objective": "Eager to expand my skill set through external trainings to help boost all major front desk KPIs. Hoping to leverage organizational skills to help ABC Corp introduce time-saving schemes for all executives.",
-    "profiles": [
-      {
-        "network": "linkedin",
-        "username": "sadanandpai",
-        "url": "https://www.linkedin.com/in/sadanandpai/"
-      },
-      {
-        "network": "twitter",
-        "username": "sadanand_pai",
-        "url": "https://x.com/sadanand_pai"
-      },
-      {
-        "network": "github",
-        "username": "sadanandpai",
-        "url": "https://github.com/sadanandpai/"
-      },
-      {
-        "network": "hackerrank",
-        "username": "paicube",
-        "url": "https://www.hackerrank.com/paicube/"
-      },
-      {
-        "network": "hackerearth",
-        "username": "sadanandpai",
-        "url": "https://www.hackerearth.com/sadanandpai/"
-      },
-      {
-        "network": "codechef",
-        "username": "sadanandpai",
-        "url": "https://www.codechef.com/sadanandpai/"
-      },
-      {
-        "network": "leetcode",
-        "username": "sadanandpai",
-        "url": "https://leetcode.com/sadanandpai/"
-      }
-    ]
+    "relExp": "1 year",
+    "totalExp": "1 Year",
+    "objective": "Design, deploy, and scale a student-led resume builder for Cloud Computing coursework, with secure cloud hosting and a managed database setup.",
+    "profiles": []
   },
 
   "skills": {
@@ -76,7 +40,7 @@
       { "name": "jQuery", "level": 3 },
       { "name": "Redux", "level": 3 }
     ],
-    "databases": [{ "name": "Firebase", "level": 3 }],
+    "databases": [{ "name": "MongoDB Atlas", "level": 4 }],
     "practices": [
       { "name": "Component based architecture", "level": 3 },
       { "name": "Agile methodology", "level": 3 },
@@ -167,7 +131,7 @@
   ],
 
   "activities": {
-    "involvements": "<ul><li>Prevented millions of dollars in state sales tax undercharges by initiating tests that revealed a bug in a new release of shopping cart software.</li><li>Isolated previously undiscovered flaw in price checking tool resulting in more competitive pricing and a 20 percent increase in revenue.</li><li>Implemented automated testing tools spawning more diligent levels of regression testing, negative testing, error/bug retests and usability.</li><li>Prevented millions of dollars in state sales tax undercharges by initiating tests that revealed a bug in a new release of shopping cart software.</li></ul>",
+    "involvements": "<ul><li>Subject: Cloud Computing</li><li>Team members: Piyush Utkar (654), Nandini Singh (643), Daksh Soni (645)</li><li>Prepared AWS deployment workflow using production build and environment-based configuration.</li><li>Planned cloud database integration with MongoDB Atlas using secure connection strings.</li></ul>",
 
     "achievements": "<ul><li>React and redux - A complete guide 2020 from Udemy</li><li>Agile and Scrum Master Certificate from Udacity</li><li>Best performer award for consistently exceeding the performance</li><li>Certificate of exceptional bug finder by XYZ client</li><li>Recognition zero defect delivery</li><li>Best performer award for consistently exceeding the performance</li></ul>"
   },
