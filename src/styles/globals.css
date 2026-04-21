@@ -4,6 +4,7 @@
 html,
 body {
   font-family: 'Roboto', sans-serif;
+  overflow-x: hidden;
 }
 
 .no-scrollbar::-webkit-scrollbar {

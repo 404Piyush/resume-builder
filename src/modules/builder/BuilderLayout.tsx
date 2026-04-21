@@ -1,4 +1,5 @@
 import EditorLayout from './editor/EditorLayout';
+import BuilderAIChat from './ai/BuilderAIChat';
 import Image from 'next/image';
 import NavBarLayout from './nav-bar/NavBarLayout';
 import ResumeHeader from './resume/components/ResumeHeader';
@@ -10,6 +11,9 @@ const BuilderLayout = () => {
     <div className="flex flex-col h-screen">
       <NavBarLayout />
       <main className="flex flex-1 max-h-[calc(100vh-3.5rem)] print:max-h-fit">
+        <aside className="w-[20vw] min-w-[17rem] print:hidden border-r border-resume-100">
+          <EditorLayout />
+        </aside>
         <div className="flex flex-col flex-1 justify-center bg-custom-grey100 print:bg-white">
           <header className="w-[210mm] mt-5 mb-3 mx-auto print:hidden">
             <ResumeHeader />
@@ -18,8 +22,8 @@ const BuilderLayout = () => {
             <ResumeLayout />
           </div>
         </div>
-        <aside className="w-[25vw] min-w-[20rem] print:hidden">
-          <EditorLayout />
+        <aside className="w-[24vw] min-w-[20rem] print:hidden border-l border-resume-100">
+          <BuilderAIChat mode="panel" />
         </aside>
       </main>
 

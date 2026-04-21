@@ -42,6 +42,30 @@ export const AVAILABLE_TEMPLATES: ITemplate = {
       ssr: false,
     }),
   },
+  compact: {
+    id: 'compact',
+    name: 'Compact Resume',
+    thumbnail: '/templates/modern.png',
+    component: dynamic(() => import('@/templates/compact/CompactTemplate'), {
+      ssr: false,
+    }),
+  },
+  executive: {
+    id: 'executive',
+    name: 'Executive Resume',
+    thumbnail: '/templates/professional.png',
+    component: dynamic(() => import('@/templates/executive/ExecutiveTemplate'), {
+      ssr: false,
+    }),
+  },
+  minimal: {
+    id: 'minimal',
+    name: 'Minimal Resume',
+    thumbnail: '/templates/modern.png',
+    component: dynamic(() => import('@/templates/minimal/MinimalTemplate'), {
+      ssr: false,
+    }),
+  },
 };
 
 export const CUSTOM_THEME_COLOR: IThemeColor = {

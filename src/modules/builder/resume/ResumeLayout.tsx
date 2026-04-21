@@ -21,9 +21,12 @@ export const ResumeLayout = () => {
   StateContext = createContext(resumeData);
 
   useEffect(() => {
-    const selectedTemplateId =
-      localStorage.getItem('selectedTemplateId') || AVAILABLE_TEMPLATES['modern'].id;
-    useTemplates.getState().setTemplate(AVAILABLE_TEMPLATES[selectedTemplateId]);
+    const selectedTemplateId = localStorage.getItem('selectedTemplateId');
+    const validTemplateId =
+      selectedTemplateId && AVAILABLE_TEMPLATES[selectedTemplateId]
+        ? selectedTemplateId
+        : AVAILABLE_TEMPLATES['modern'].id;
+    useTemplates.getState().setTemplate(AVAILABLE_TEMPLATES[validTemplateId]);
   }, []);
 
   return (
@@ -32,7 +35,7 @@ export const ResumeLayout = () => {
         style={{ transform: `scale(${zoom})` }}
         className="origin-top transition-all duration-300 ease-linear	print:scale-100!"
       >
-        <div className="w-[210mm] h-[296mm] bg-white my-0 mx-auto">
+        <div id="resume-document" className="w-[210mm] h-[296mm] bg-white my-0 mx-auto">
           <StateContext.Provider value={resumeData}>
             <ThemeProvider theme={selectedTheme}>{Template && <Template />}</ThemeProvider>
           </StateContext.Provider>
