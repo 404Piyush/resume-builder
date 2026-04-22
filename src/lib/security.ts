@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import { getRequiredEnv, isProduction } from './env';
+import { getOptionalEnv, getRequiredEnv, isProduction } from './env';
 
 type AuthTokenPayload = {
   sub: string;
@@ -61,6 +61,13 @@ export const decryptText = (cipherText: string): string => {
   return decrypted.toString('utf8');
 };
 
+const useSecureCookie = () => {
+  const configured = getOptionalEnv('AUTH_COOKIE_SECURE', '');
+  if (configured) return configured === 'true';
+  // Default to non-secure for HTTP deployments unless explicitly enabled.
+  return false;
+};
+
 export const authCookie = (token: string) =>
   [
     `auth_token=${token}`,
@@ -68,12 +75,19 @@ export const authCookie = (token: string) =>
     'Path=/',
     'SameSite=Lax',
     'Max-Age=604800',
-    isProduction ? 'Secure' : '',
+    isProduction && useSecureCookie() ? 'Secure' : '',
   ]
     .filter(Boolean)
     .join('; ');
 
 export const clearAuthCookie = () =>
-  ['auth_token=', 'HttpOnly', 'Path=/', 'SameSite=Lax', 'Max-Age=0', isProduction ? 'Secure' : '']
+  [
+    'auth_token=',
+    'HttpOnly',
+    'Path=/',
+    'SameSite=Lax',
+    'Max-Age=0',
+    isProduction && useSecureCookie() ? 'Secure' : '',
+  ]
     .filter(Boolean)
     .join('; ');

@@ -36,7 +36,12 @@ export const TemplateSlider = () => {
   }, []);
 
   const onChangeTemplate = (templateId: string) => {
-    useTemplates.getState().setTemplate(AVAILABLE_TEMPLATES[templateId]);
+    const matchedTemplate = Object.values(AVAILABLE_TEMPLATES).find(
+      (template) => template.id === templateId
+    );
+    if (matchedTemplate) {
+      useTemplates.getState().setTemplate(matchedTemplate);
+    }
   };
 
   return (
@@ -106,6 +111,9 @@ export const TemplateSlide = ({
         }}
       >
         <Image src={thumbnail} alt={name} layout="fill" />
+        <div className="absolute bottom-0 left-0 right-0 bg-black/55 text-white text-xs px-2 py-1">
+          {name}
+        </div>
 
         {isActive && (
           <div className="absolute top-1 right-1 bg-white rounded-full">

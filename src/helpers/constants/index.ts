@@ -45,7 +45,7 @@ export const AVAILABLE_TEMPLATES: ITemplate = {
   compact: {
     id: 'compact',
     name: 'Compact Resume',
-    thumbnail: '/templates/modern.png',
+    thumbnail: '/templates/compact.svg',
     component: dynamic(() => import('@/templates/compact/CompactTemplate'), {
       ssr: false,
     }),
@@ -53,7 +53,7 @@ export const AVAILABLE_TEMPLATES: ITemplate = {
   executive: {
     id: 'executive',
     name: 'Executive Resume',
-    thumbnail: '/templates/professional.png',
+    thumbnail: '/templates/executive.svg',
     component: dynamic(() => import('@/templates/executive/ExecutiveTemplate'), {
       ssr: false,
     }),
@@ -61,7 +61,7 @@ export const AVAILABLE_TEMPLATES: ITemplate = {
   minimal: {
     id: 'minimal',
     name: 'Minimal Resume',
-    thumbnail: '/templates/modern.png',
+    thumbnail: '/templates/minimal.svg',
     component: dynamic(() => import('@/templates/minimal/MinimalTemplate'), {
       ssr: false,
     }),

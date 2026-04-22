@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getOptionalEnv, getRequiredEnv } from '@/lib/env';
+import { getRequiredEnv } from '@/lib/env';
+import { resolveOpenRouterModel, stripModelNotice } from '@/lib/openrouter';
 import { verifyAuthToken } from '@/lib/security';
 
 type OpenRouterResponse = {
@@ -46,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: getOptionalEnv('OPENROUTER_MODEL', 'openai/gpt-4o-mini'),
+      model: resolveOpenRouterModel(),
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.4,
     }),
@@ -59,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 
-  const improvedText = data.choices?.[0]?.message?.content?.trim();
+  const improvedText = stripModelNotice(data.choices?.[0]?.message?.content?.trim() || '');
   if (!improvedText) {
     return res.status(502).json({ message: 'No AI response content received.' });
   }

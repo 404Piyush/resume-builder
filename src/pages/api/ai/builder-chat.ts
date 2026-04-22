@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getOptionalEnv, getRequiredEnv } from '@/lib/env';
+import { getRequiredEnv } from '@/lib/env';
+import { resolveOpenRouterModel, stripModelNotice } from '@/lib/openrouter';
 import { verifyAuthToken } from '@/lib/security';
 
 type BuilderChatResponse = {
@@ -28,7 +29,7 @@ const extractJson = (content: string): BuilderChatResponse => {
   try {
     const parsed = JSON.parse(maybeJson.trim()) as Partial<BuilderChatResponse>;
     return {
-      answer: parsed.answer || fallbackResponse.answer,
+      answer: stripModelNotice(parsed.answer || fallbackResponse.answer),
       suggestedChange: parsed.suggestedChange || '',
       targetField:
         parsed.targetField === 'summary' || parsed.targetField === 'objective'
@@ -53,6 +54,9 @@ const buildDirectPatchFromPrompt = (
   if (!q) return null;
 
   const basics = (resumeData.basics || {}) as Record<string, unknown>;
+  const basicProfiles = Array.isArray(basics.profiles) ? (basics.profiles as unknown[]) : [];
+  const location = (basics.location || {}) as Record<string, unknown>;
+
   const makeResponse = (
     field: string,
     value: string,
@@ -70,6 +74,57 @@ const buildDirectPatchFromPrompt = (
       },
     },
   });
+
+  const makeLocationResponse = (
+    locationField: string,
+    value: string,
+    answer: string
+  ): BuilderChatResponse => ({
+    answer,
+    suggestedChange: '',
+    targetField: 'none',
+    cta: 'Applied change is ready. Click Apply for me.',
+    resumePatch: {
+      basics: {
+        ...basics,
+        location: {
+          ...location,
+          [locationField]: value,
+        },
+      },
+    },
+  });
+
+  const makeProfileResponse = (
+    network: string,
+    value: string,
+    answer: string
+  ): BuilderChatResponse => {
+    const normalizedProfiles = basicProfiles
+      .filter((item) => item && typeof item === 'object')
+      .map((item) => ({ ...(item as Record<string, unknown>) }));
+    const matched = normalizedProfiles.find(
+      (item) => String(item.network || '').toLowerCase() === network.toLowerCase()
+    );
+    if (matched) {
+      matched.url = value;
+    } else {
+      normalizedProfiles.push({ network, username: 'janedoe', url: value });
+    }
+
+    return {
+      answer,
+      suggestedChange: '',
+      targetField: 'none',
+      cta: 'Applied change is ready. Click Apply for me.',
+      resumePatch: {
+        basics: {
+          ...basics,
+          profiles: normalizedProfiles,
+        },
+      },
+    };
+  };
 
   const nameMatch = q.match(/(?:change|set|update)\s+name\s+(?:to|as)\s+(.+)/i);
   if (nameMatch?.[1]) {
@@ -95,6 +150,14 @@ const buildDirectPatchFromPrompt = (
     return makeResponse('phone', value, `Done. I prepared a patch to change phone to ${value}.`);
   }
 
+  const urlMatch = q.match(
+    /(?:change|set|update)\s+(?:website|site|portfolio|url)\s+(?:to|as)\s+(.+)/i
+  );
+  if (urlMatch?.[1]) {
+    const value = urlMatch[1].trim();
+    return makeResponse('url', value, `Done. I prepared a patch to change website to ${value}.`);
+  }
+
   const summaryMatch = q.match(/(?:change|set|update|rewrite)\s+summary\s+(?:to|as)\s+([\s\S]+)/i);
   if (summaryMatch?.[1]) {
     const value = summaryMatch[1].trim();
@@ -107,6 +170,85 @@ const buildDirectPatchFromPrompt = (
   if (objectiveMatch?.[1]) {
     const value = objectiveMatch[1].trim();
     return makeResponse('objective', value, 'Done. I prepared an objective update.', 'objective');
+  }
+
+  const cityMatch = q.match(/(?:change|set|update)\s+(?:city|location)\s+(?:to|as)\s+(.+)/i);
+  if (cityMatch?.[1]) {
+    const value = cityMatch[1].trim();
+    return makeLocationResponse(
+      'city',
+      value,
+      `Done. I prepared a patch to update city to ${value}.`
+    );
+  }
+
+  const totalExpMatch = q.match(/(?:change|set|update)\s+total\s+experience\s+(?:to|as)\s+(.+)/i);
+  if (totalExpMatch?.[1]) {
+    const value = totalExpMatch[1].trim();
+    return makeResponse(
+      'totalExp',
+      value,
+      `Done. I prepared a patch to update total experience to ${value}.`
+    );
+  }
+
+  const relExpMatch = q.match(
+    /(?:change|set|update)\s+(?:relevant\s+experience|rel\s*exp)\s+(?:to|as)\s+(.+)/i
+  );
+  if (relExpMatch?.[1]) {
+    const value = relExpMatch[1].trim();
+    return makeResponse(
+      'relExp',
+      value,
+      `Done. I prepared a patch to update relevant experience to ${value}.`
+    );
+  }
+
+  const networkMatch = q.match(
+    /(?:change|set|update)\s+(linkedin|twitter|github|hackerrank|hackerearth|codechef|leetcode|cssbattle)\s+(?:to|as)\s+(.+)/i
+  );
+  if (networkMatch?.[1] && networkMatch?.[2]) {
+    const network = networkMatch[1].trim().toLowerCase();
+    const value = networkMatch[2].trim();
+    return makeProfileResponse(
+      network,
+      value,
+      `Done. I prepared a patch to update ${network} link to ${value}.`
+    );
+  }
+
+  const genericMatch = q.match(/(?:change|set|update)\s+([a-zA-Z\s]+?)\s+(?:to|as)\s+([\s\S]+)/i);
+  if (genericMatch?.[1] && genericMatch?.[2]) {
+    const rawField = genericMatch[1].trim().toLowerCase().replace(/\s+/g, ' ');
+    const value = genericMatch[2].trim();
+    const fieldMap: Record<string, string> = {
+      name: 'name',
+      title: 'label',
+      role: 'label',
+      label: 'label',
+      email: 'email',
+      phone: 'phone',
+      website: 'url',
+      site: 'url',
+      portfolio: 'url',
+      url: 'url',
+      summary: 'summary',
+      objective: 'objective',
+      'career objective': 'objective',
+      'total experience': 'totalExp',
+      'relevant experience': 'relExp',
+    };
+    const field = fieldMap[rawField];
+    if (field && field !== 'image') {
+      const targetField =
+        field === 'summary' || field === 'objective' ? (field as 'summary' | 'objective') : 'none';
+      return makeResponse(
+        field,
+        value,
+        `Done. I prepared a patch to update ${rawField}.`,
+        targetField
+      );
+    }
   }
 
   return null;
@@ -159,7 +301,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: getOptionalEnv('OPENROUTER_MODEL', 'openai/gpt-4o-mini'),
+      model: resolveOpenRouterModel(),
       temperature: 0.5,
       response_format: { type: 'json_object' },
       messages: [

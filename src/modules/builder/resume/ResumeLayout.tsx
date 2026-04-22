@@ -16,17 +16,19 @@ export const ResumeLayout = () => {
   const zoom = useZoom((state) => state.zoom);
 
   const templateId = useTemplates((state) => state.activeTemplate.id);
-  const Template = AVAILABLE_TEMPLATES[templateId].component;
+  const activeTemplate =
+    Object.values(AVAILABLE_TEMPLATES).find((template) => template.id === templateId) ||
+    AVAILABLE_TEMPLATES.modern;
+  const Template = activeTemplate.component;
   const selectedTheme = useThemes((state) => state.selectedTheme);
   StateContext = createContext(resumeData);
 
   useEffect(() => {
     const selectedTemplateId = localStorage.getItem('selectedTemplateId');
-    const validTemplateId =
-      selectedTemplateId && AVAILABLE_TEMPLATES[selectedTemplateId]
-        ? selectedTemplateId
-        : AVAILABLE_TEMPLATES['modern'].id;
-    useTemplates.getState().setTemplate(AVAILABLE_TEMPLATES[validTemplateId]);
+    const matched =
+      selectedTemplateId &&
+      Object.values(AVAILABLE_TEMPLATES).find((template) => template.id === selectedTemplateId);
+    useTemplates.getState().setTemplate(matched || AVAILABLE_TEMPLATES.modern);
   }, []);
 
   return (

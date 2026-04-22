@@ -84,6 +84,19 @@ const normalizedHtml = (value: string) => {
   return /<\/?[a-z][\s\S]*>/i.test(trimmed) ? trimmed : toSafeParagraph(trimmed);
 };
 
+const normalizeResumePatch = (value: unknown): Record<string, unknown> | undefined => {
+  if (value && typeof value === 'object') return value as Record<string, unknown>;
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value) as unknown;
+      return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+  return undefined;
+};
+
 export default function BuilderAIChat({ mode = 'drawer' }: { mode?: 'drawer' | 'panel' }) {
   const resumeData = useResumeStore();
   const [isOpen, setIsOpen] = useState(false);
@@ -99,22 +112,13 @@ export default function BuilderAIChat({ mode = 'drawer' }: { mode?: 'drawer' | '
   ]);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const compactResumeContext = useMemo(
+  const aiResumeContext = useMemo(
     () => ({
+      ...resumeData,
       basics: {
-        name: resumeData.basics.name,
-        label: resumeData.basics.label,
-        summary: resumeData.basics.summary,
-        objective: resumeData.basics.objective,
+        ...resumeData.basics,
+        image: '',
       },
-      work: resumeData.work.slice(0, 3).map((item) => ({
-        name: item.name,
-        position: item.position,
-        summary: item.summary,
-        highlights: item.highlights?.slice(0, 4) || [],
-      })),
-      education: resumeData.education.slice(0, 2),
-      skills: resumeData.skills,
     }),
     [resumeData]
   );
@@ -135,7 +139,7 @@ export default function BuilderAIChat({ mode = 'drawer' }: { mode?: 'drawer' | '
         body: JSON.stringify({
           action,
           question: inputQuestion,
-          resumeData: compactResumeContext,
+          resumeData: aiResumeContext,
         }),
       });
 
@@ -164,7 +168,7 @@ export default function BuilderAIChat({ mode = 'drawer' }: { mode?: 'drawer' | '
           suggestedChange: data.suggestedChange || '',
           targetField: data.targetField || 'none',
           cta: data.cta || '',
-          resumePatch: data.resumePatch,
+          resumePatch: normalizeResumePatch(data.resumePatch),
         },
       ]);
     } catch (requestError) {
@@ -184,16 +188,33 @@ export default function BuilderAIChat({ mode = 'drawer' }: { mode?: 'drawer' | '
       const basicsPatch = asRecord(patch.basics);
       if (Object.keys(basicsPatch).length) {
         const currentBasic = useBasicDetails.getState().values;
+        const sanitizedBasicsPatch = { ...basicsPatch };
+        delete sanitizedBasicsPatch.image;
+        const locationPatch = asRecord(sanitizedBasicsPatch.location);
+        const profilesPatch = asArray(sanitizedBasicsPatch.profiles);
         useBasicDetails.getState().reset({
           ...currentBasic,
-          ...basicsPatch,
+          ...sanitizedBasicsPatch,
+          location: Object.keys(locationPatch).length
+            ? { ...currentBasic.location, ...locationPatch }
+            : currentBasic.location,
+          profiles: profilesPatch.length
+            ? profilesPatch.map((profile) => {
+                const item = asRecord(profile);
+                return {
+                  network: asString(item.network),
+                  username: asString(item.username),
+                  url: asString(item.url),
+                };
+              })
+            : currentBasic.profiles,
           summary:
-            asString(basicsPatch.summary).trim() !== ''
-              ? normalizedHtml(asString(basicsPatch.summary))
+            asString(sanitizedBasicsPatch.summary).trim() !== ''
+              ? normalizedHtml(asString(sanitizedBasicsPatch.summary))
               : currentBasic.summary,
           objective:
-            asString(basicsPatch.objective).trim() !== ''
-              ? normalizedHtml(asString(basicsPatch.objective))
+            asString(sanitizedBasicsPatch.objective).trim() !== ''
+              ? normalizedHtml(asString(sanitizedBasicsPatch.objective))
               : currentBasic.objective,
         });
       }
@@ -319,6 +340,10 @@ export default function BuilderAIChat({ mode = 'drawer' }: { mode?: 'drawer' | '
         });
       }
 
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', text: 'Applied changes to your resume successfully.' },
+      ]);
       return;
     }
 
@@ -329,7 +354,44 @@ export default function BuilderAIChat({ mode = 'drawer' }: { mode?: 'drawer' | '
         [message.targetField]: toSafeParagraph(message.suggestedChange),
       };
       useBasicDetails.getState().reset(updated);
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', text: `Applied update to ${message.targetField}.` },
+      ]);
+      return;
     }
+
+    setError('No valid patch found in this AI response. Ask again with a more specific prompt.');
+  };
+
+  const handleCopy = async (message: ChatItem) => {
+    const textToCopy =
+      message.suggestedChange ||
+      JSON.stringify(normalizeResumePatch(message.resumePatch) || {}, null, 2);
+    if (!textToCopy) {
+      setError('Nothing to copy from this message.');
+      return;
+    }
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        throw new Error('Clipboard API unavailable');
+      }
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = textToCopy;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+    setMessages((prev) => [...prev, { role: 'assistant', text: 'Copied to clipboard.' }]);
   };
 
   useEffect(() => {
@@ -428,16 +490,7 @@ export default function BuilderAIChat({ mode = 'drawer' }: { mode?: 'drawer' | '
                   >
                     Apply for me
                   </Button>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() =>
-                      navigator.clipboard.writeText(
-                        message.suggestedChange ||
-                          JSON.stringify(message.resumePatch || {}, null, 2)
-                      )
-                    }
-                  >
+                  <Button size="small" variant="outlined" onClick={() => handleCopy(message)}>
                     Copy
                   </Button>
                 </Stack>
